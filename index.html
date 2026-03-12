@@ -1,32 +1,64 @@
-<script>
-  fetch("https://raw.githubusercontent.com/Mandy10NM/nm-bin-buddy/main/nm_bin_buddy.ics")
-    .then(r => r.text())
-    .then(text => {
-      document.getElementById("updated").textContent = new Date().toLocaleString("en-GB");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>NM Bin Buddy</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f8f9fb; margin:0; padding:0; color:#1a1a1a; }
+    .wrap { max-width:720px; margin:40px auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.08); }
+    h1 { margin-top:10px; }
+    .box { background:#f2f4f7; padding:12px 16px; border-radius:8px; margin:10px 0; }
+    .link { display:inline-block; background:#2e7d32; color:#fff; text-decoration:none; padding:10px 16px; border-radius:6px; font-weight:bold; }
+    img.logo { max-width:320px; margin-bottom:10px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <img class="logo" src="nm-bin-buddy-logo.png" alt="NM Bin Buddy logo">
+    <h1>Bin reminder status</h1>
+    <div>For Nether Mount neighbours</div>
 
-      // Find first DTSTART and SUMMARY
-      const dtMatch = text.match(/DTSTART.*:(\d{8})T(\d{6})/);
-      const summaryMatch = text.match(/SUMMARY:(.*)/);
-      const holidayMatch = text.match(/SUMMARY:Collection moved this week:.*?/);
+    <div class="box"><strong>Last updated:</strong> <span id="updated">Loading…</span></div>
+    <div class="box"><strong>Next collection:</strong> <span id="next">Loading…</span></div>
+    <div class="box"><strong>Reminder time:</strong> Monday 4:30pm</div>
+    <div class="box"><strong>Holiday change:</strong> <span id="holiday">Loading…</span></div>
 
-      if (summaryMatch && dtMatch) {
-        const dt = dtMatch[1];
-        const yyyy = dt.substring(0,4), mm = dt.substring(4,6), dd = dt.substring(6,8);
-        const dateStr = `${dd}/${mm}/${yyyy}`;
-        document.getElementById("next").textContent = `${summaryMatch[1]} (reminder on ${dateStr})`;
-      } else {
-        document.getElementById("next").textContent = "Unable to read next reminder.";
-      }
+    <a class="link" href="nm_bin_buddy.ics">Subscribe to calendar</a>
+  </div>
 
-      if (holidayMatch) {
-        document.getElementById("holiday").textContent = holidayMatch[0].replace("SUMMARY:", "");
-      } else {
-        document.getElementById("holiday").textContent = "None";
-      }
-    })
-    .catch(err => {
-      document.getElementById("updated").textContent = "Error loading";
-      document.getElementById("next").textContent = "Error loading";
-      document.getElementById("holiday").textContent = "Error loading";
-    });
-</script>
+  <script>
+    const url = "https://raw.githubusercontent.com/Mandy10NM/nm-bin-buddy/main/nm_bin_buddy.ics";
+
+    fetch(url)
+      .then(r => r.text())
+      .then(text => {
+        document.getElementById("updated").textContent = new Date().toLocaleString("en-GB");
+
+        const dtMatch = text.match(/DTSTART.*:(\\d{8})T(\\d{6})/);
+        const summaryMatch = text.match(/SUMMARY:(.*)/);
+        const holidayMatch = text.match(/SUMMARY:Collection moved this week:.*?/);
+
+        if (summaryMatch && dtMatch) {
+          const dt = dtMatch[1];
+          const yyyy = dt.substring(0,4), mm = dt.substring(4,6), dd = dt.substring(6,8);
+          const dateStr = `${dd}/${mm}/${yyyy}`;
+          document.getElementById("next").textContent = `${summaryMatch[1]} (reminder on ${dateStr})`;
+        } else {
+          document.getElementById("next").textContent = "Unable to read next reminder.";
+        }
+
+        if (holidayMatch) {
+          document.getElementById("holiday").textContent = holidayMatch[0].replace("SUMMARY:", "");
+        } else {
+          document.getElementById("holiday").textContent = "None";
+        }
+      })
+      .catch(() => {
+        document.getElementById("updated").textContent = "Error loading";
+        document.getElementById("next").textContent = "Error loading";
+        document.getElementById("holiday").textContent = "Error loading";
+      });
+  </script>
+</body>
+</html>
