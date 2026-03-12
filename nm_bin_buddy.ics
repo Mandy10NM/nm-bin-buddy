@@ -5,9 +5,9 @@ X-WR-CALNAME:NM Bin Buddy
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:nm-reminder-20260316
-DTSTAMP:20260312T155124Z
+DTSTAMP:20260312T162248Z
 DTSTART;TZID=Europe/London:20260316T163000
 DTEND;TZID=Europe/London:20260316T163000
-SUMMARY:Reminder: put out your Green/Brown bin – and give your neighbour a nudge if theirs is still in!
+SUMMARY:Reminder: put out your Green/Brown bin – and give your neighbour a wave if theirs is still in!
 END:VEVENT
 END:VCALENDAR
