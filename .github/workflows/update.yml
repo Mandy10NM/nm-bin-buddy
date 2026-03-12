@@ -1,3 +1,5 @@
+Replace with this:
+
 name: Update NM Bin Buddy
 
 on:
@@ -5,15 +7,27 @@ on:
     - cron: "0 6 * * 1"  # Monday 06:00 UK time
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+
       - name: Run updater
         run: python scripts/update_nm_bin_buddy.py
+
       - name: Commit changes
         run: |
           git config --global user.email "bot@nm-bin-buddy"
