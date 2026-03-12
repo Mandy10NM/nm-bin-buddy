@@ -1,0 +1,23 @@
+name: Update NM Bin Buddy
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"  # Monday 06:00 UK time
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run updater
+        run: python scripts/update_nm_bin_buddy.py
+      - name: Commit changes
+        run: |
+          git config --global user.email "bot@nm-bin-buddy"
+          git config --global user.name "NM Bin Buddy Bot"
+          git add nm_bin_buddy.ics
+          git commit -m "Auto-update calendar" || echo "No changes"
+          git push
