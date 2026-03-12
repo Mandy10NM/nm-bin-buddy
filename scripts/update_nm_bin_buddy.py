@@ -127,7 +127,7 @@ X-WR-CALNAME:{CAL_NAME}
 CALSCALE:GREGORIAN
 """
 
-    summary = f"Reminder: put out your {bin_type} bin – and give your neighbour a nudge if theirs is still in!"
+    summary = f"Reminder: put out your {bin_type} bin – and give your neighbour a wave if theirs is still in!"
     cal += make_event(reminder_day, summary, f"nm-reminder-{reminder_day.strftime('%Y%m%d')}")
 
     if holiday_change:
