@@ -5,8 +5,10 @@ TIMEZONE = "Europe/London"
 REMINDER_TIME = "T163000"
 CAL_NAME = "NM Bin Buddy"
 
+tz = pytz.timezone(TIMEZONE)
+
 # Tue 10 March 2026 = Black
-REFERENCE_TUESDAY = datetime(2026, 3, 10)
+REFERENCE_TUESDAY = tz.localize(datetime(2026, 3, 10))
 
 # Manual holiday overrides (add if needed)
 # Format: {"YYYY-MM-DD": "YYYY-MM-DD"}  # collection moved FROM Tuesday TO new date
@@ -53,7 +55,7 @@ def generate_calendar():
 
     key = scheduled_tuesday.strftime("%Y-%m-%d")
     if key in HOLIDAY_OVERRIDES:
-        new_date = datetime.strptime(HOLIDAY_OVERRIDES[key], "%Y-%m-%d")
+        new_date = tz.localize(datetime.strptime(HOLIDAY_OVERRIDES[key], "%Y-%m-%d"))
         collection_date = new_date
         holiday_change = True
         holiday_msg = f"Collection moved this week: {new_date.strftime('%A')} instead of Tuesday."
