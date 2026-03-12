@@ -76,7 +76,7 @@
   </div>
 
   <script>
-    fetch("nm_bin_buddy.ics")
+    fetch("https://raw.githubusercontent.com/Mandy10NM/nm-bin-buddy/main/nm_bin_buddy.ics")
       .then(r => r.text())
       .then(text => {
         const updated = new Date().toLocaleString("en-GB");
