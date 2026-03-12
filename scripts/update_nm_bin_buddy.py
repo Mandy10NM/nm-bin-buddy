@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 import pytz
 from playwright.sync_api import sync_playwright
 
-
 TIMEZONE = "Europe/London"
 REMINDER_TIME = "T163000"
 CAL_NAME = "NM Bin Buddy"
@@ -13,7 +12,6 @@ tz = pytz.timezone(TIMEZONE)
 # Tue 10 March 2026 = Black
 REFERENCE_TUESDAY = tz.localize(datetime(2026, 3, 10))
 
-ADDRESS_QUERY = "10 Nether Mount, GU2 4LL"
 COUNCIL_URL = "https://my.guildford.gov.uk/customers/s/view-bin-collections"
 
 
@@ -30,18 +28,20 @@ def fetch_page_text():
         except:
             pass
 
-        # Enter address
+        # Enter postcode only
         textbox = page.get_by_role("textbox").first
         textbox.click()
-        textbox.fill(ADDRESS_QUERY)
-        page.keyboard.press("Enter")
+        textbox.fill("GU2 4LL")
 
-        # Select suggestion if it appears
+        # Click "Find address"
+        page.get_by_role("button", name="Find address").click()
         page.wait_for_timeout(2000)
-        try:
-            page.locator("li").filter(has_text="Nether Mount").first.click()
-        except:
-            pass
+
+        # Select the radio option for "10 NETHER MOUNT, GUILDFORD, GU2 4LL"
+        page.locator("text=10 NETHER MOUNT, GUILDFORD, GU2 4LL").click()
+
+        # Click Continue
+        page.get_by_role("button", name="Continue").click()
 
         # Wait for results
         page.wait_for_timeout(3000)
