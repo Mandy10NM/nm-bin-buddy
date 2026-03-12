@@ -1,107 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>NM Bin Buddy</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f8f9fb;
-      color: #1a1a1a;
-      margin: 0;
-      padding: 0;
-    }
-    .wrap {
-      max-width: 720px;
-      margin: 40px auto;
-      background: #fff;
-      border-radius: 12px;
-      padding: 30px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    }
-    h1 {
-      margin-top: 0;
-      font-size: 32px;
-    }
-    .sub {
-      color: #555;
-      margin-bottom: 20px;
-    }
-    .box {
-      background: #f2f4f7;
-      padding: 15px 20px;
-      border-radius: 8px;
-      margin: 12px 0;
-      font-size: 16px;
-    }
-    .link {
-      margin-top: 20px;
-      display: inline-block;
-      background: #2e7d32;
-      color: white;
-      text-decoration: none;
-      padding: 10px 16px;
-      border-radius: 6px;
-      font-weight: bold;
-    }
-    .logo {
-      font-size: 26px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    footer {
-      margin-top: 20px;
-      color: #777;
-      font-size: 13px;
-    }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <img src="nm-bin-buddy-logo.png" alt="NM Bin Buddy logo" style="max-width:320px; margin-bottom:10px;">
-    <h1>Bin reminder status</h1>
-    <div class="sub">For Nether Mount neighbours</div>
+<script>
+  fetch("https://raw.githubusercontent.com/Mandy10NM/nm-bin-buddy/main/nm_bin_buddy.ics")
+    .then(r => r.text())
+    .then(text => {
+      document.getElementById("updated").textContent = new Date().toLocaleString("en-GB");
 
-    <div class="box"><strong>Last updated:</strong> <span id="updated">Loading…</span></div>
-    <div class="box"><strong>Next collection:</strong> <span id="next">Loading…</span></div>
-    <div class="box"><strong>Reminder time:</strong> Monday 4:30pm</div>
-    <div class="box"><strong>Holiday change:</strong> <span id="holiday">Loading…</span></div>
+      // Find first DTSTART and SUMMARY
+      const dtMatch = text.match(/DTSTART.*:(\d{8})T(\d{6})/);
+      const summaryMatch = text.match(/SUMMARY:(.*)/);
+      const holidayMatch = text.match(/SUMMARY:Collection moved this week:.*?/);
 
-    <a class="link" href="nm_bin_buddy.ics">Subscribe to calendar</a>
+      if (summaryMatch && dtMatch) {
+        const dt = dtMatch[1];
+        const yyyy = dt.substring(0,4), mm = dt.substring(4,6), dd = dt.substring(6,8);
+        const dateStr = `${dd}/${mm}/${yyyy}`;
+        document.getElementById("next").textContent = `${summaryMatch[1]} (reminder on ${dateStr})`;
+      } else {
+        document.getElementById("next").textContent = "Unable to read next reminder.";
+      }
 
-    <footer>
-      This page updates automatically. If reminders appear twice, remove one subscription.
-    </footer>
-  </div>
-
-  <script>
-    fetch("https://raw.githubusercontent.com/Mandy10NM/nm-bin-buddy/main/nm_bin_buddy.ics")
-      .then(r => r.text())
-      .then(text => {
-        const updated = new Date().toLocaleString("en-GB");
-        document.getElementById("updated").textContent = updated;
-
-        // find SUMMARY + DTSTART
-        const summaryMatch = text.match(/SUMMARY:(.*)/);
-        const dtMatch = text.match(/DTSTART;TZID=Europe\\/London:(\\d{8})T(\\d{6})/);
-        const holidayMatch = text.match(/SUMMARY:Collection moved this week:.*?/);
-
-        if (summaryMatch && dtMatch) {
-          const dt = dtMatch[1];
-          const yyyy = dt.substring(0,4), mm = dt.substring(4,6), dd = dt.substring(6,8);
-          const dateStr = `${dd}/${mm}/${yyyy}`;
-          document.getElementById("next").textContent = `${summaryMatch[1]} (reminder on ${dateStr})`;
-        } else {
-          document.getElementById("next").textContent = "Unable to read next reminder.";
-        }
-
-        if (holidayMatch) {
-          document.getElementById("holiday").textContent = holidayMatch[0].replace("SUMMARY:", "");
-        } else {
-          document.getElementById("holiday").textContent = "None";
-        }
-      });
-  </script>
-</body>
-</html>
+      if (holidayMatch) {
+        document.getElementById("holiday").textContent = holidayMatch[0].replace("SUMMARY:", "");
+      } else {
+        document.getElementById("holiday").textContent = "None";
+      }
+    })
+    .catch(err => {
+      document.getElementById("updated").textContent = "Error loading";
+      document.getElementById("next").textContent = "Error loading";
+      document.getElementById("holiday").textContent = "Error loading";
+    });
+</script>
