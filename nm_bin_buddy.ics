@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//NM Bin Buddy//EN
+X-WR-CALNAME:NM Bin Buddy
+CALSCALE:GREGORIAN
+
+BEGIN:VEVENT
+UID:nm-black-20260309T163000@nm-bin-buddy
+DTSTAMP:20250101T000000Z
+DTSTART;TZID=Europe/London:20260309T163000
+DTEND;TZID=Europe/London:20260309T163000
+RRULE:FREQ=WEEKLY;INTERVAL=2
+SUMMARY:Reminder: put out your Black bin – and give your neighbour a nudge if theirs is still in!
+END:VEVENT
+
+BEGIN:VEVENT
+UID:nm-green-20260316T163000@nm-bin-buddy
+DTSTAMP:20250101T000000Z
+DTSTART;TZID=Europe/London:20260316T163000
+DTEND;TZID=Europe/London:20260316T163000
+RRULE:FREQ=WEEKLY;INTERVAL=2
+SUMMARY:Reminder: put out your Green/Brown bin – and give your neighbour a nudge if theirs is still in!
+END:VEVENT
+
+END:VCALENDAR
