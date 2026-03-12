@@ -36,14 +36,14 @@
         document.getElementById("updated").textContent = new Date().toLocaleString("en-GB");
 
         const dtMatch = text.match(/DTSTART.*:(\\d{8})T(\\d{6})/);
-        const summaryMatch = text.match(/SUMMARY:(.*)/);
+        const summaryMatch = text.match(/SUMMARY:Reminder:.*?/);
         const holidayMatch = text.match(/SUMMARY:Collection moved this week:.*?/);
 
         if (summaryMatch && dtMatch) {
           const dt = dtMatch[1];
           const yyyy = dt.substring(0,4), mm = dt.substring(4,6), dd = dt.substring(6,8);
           const dateStr = `${dd}/${mm}/${yyyy}`;
-          document.getElementById("next").textContent = `${summaryMatch[1]} (reminder on ${dateStr})`;
+          document.getElementById("next").textContent = `${summaryMatch[0].replace("SUMMARY:","")} (reminder on ${dateStr})`;
         } else {
           document.getElementById("next").textContent = "Unable to read next reminder.";
         }
