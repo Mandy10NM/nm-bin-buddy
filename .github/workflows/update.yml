@@ -1,11 +1,12 @@
-Replace with this:
-
 name: Update NM Bin Buddy
 
 on:
   schedule:
     - cron: "0 6 * * 1"  # Monday 06:00 UK time
   workflow_dispatch:
+  push:
+    paths:
+      - "scripts/update_nm_bin_buddy.py"
 
 permissions:
   contents: write
