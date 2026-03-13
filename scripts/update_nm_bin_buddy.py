@@ -13,6 +13,7 @@ REFERENCE_TUESDAY = tz.localize(datetime(2026, 3, 10))  # Tue 10 March 2026 = Bl
 COUNCIL_URL = "https://my.guildford.gov.uk/customers/s/view-bin-collections"
 
 WEEKS_AHEAD = 12  # number of future weeks to include in the calendar
+TEST_MODE = True  # set to False after test
 
 
 def fetch_page_text():
@@ -107,7 +108,12 @@ def generate_calendar():
     holiday_change = False
     holiday_msg = ""
     holiday_week_date = None
-
+# TEST MODE: force a one‑week shift to Wednesday
+    if TEST_MODE:
+        holiday_change = True
+        holiday_week_date = scheduled_tuesday + timedelta(days=1)
+        holiday_msg = "Collection moved this week: Wednesday instead of Tuesday."
+    
     # If the council shows a different day for the next collection
     if next_date and next_date.date() != scheduled_tuesday.date():
         holiday_change = True
