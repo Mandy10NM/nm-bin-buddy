@@ -8,11 +8,11 @@ REMINDER_TIME = "T163000"
 CAL_NAME = "NM Bin Buddy"
 
 tz = pytz.timezone(TIMEZONE)
-
-# Tue 10 March 2026 = Black
-REFERENCE_TUESDAY = tz.localize(datetime(2026, 3, 10))
+REFERENCE_TUESDAY = tz.localize(datetime(2026, 3, 10))  # Tue 10 March 2026 = Black
 
 COUNCIL_URL = "https://my.guildford.gov.uk/customers/s/view-bin-collections"
+
+WEEKS_AHEAD = 12  # number of future weeks to include in the calendar
 
 
 def fetch_page_text():
@@ -37,7 +37,7 @@ def fetch_page_text():
         page.get_by_role("button", name="Find address").click()
         page.wait_for_timeout(2000)
 
-        # Select the radio option for "10 NETHER MOUNT, GUILDFORD, GU2 4LL"
+        # Select the radio option for your address
         page.locator("text=10 NETHER MOUNT, GUILDFORD, GU2 4LL").click()
 
         # Click Continue
@@ -60,10 +60,8 @@ def parse_next_collection_date(text):
             dates.append(d)
         except:
             pass
-
     if not dates:
         return None
-
     today = datetime.now()
     future = [d for d in dates if d.date() >= today.date()]
     return sorted(future)[0] if future else sorted(dates)[0]
@@ -106,20 +104,17 @@ def generate_calendar():
     next_date = parse_next_collection_date(text)
 
     scheduled_tuesday = next_tuesday(today)
-    collection_date = scheduled_tuesday
-
     holiday_change = False
     holiday_msg = ""
+    holiday_week_date = None
 
-    if next_date:
-        if next_date.date() != scheduled_tuesday.date():
-            collection_date = tz.localize(next_date)
-            holiday_change = True
-            holiday_msg = f"Collection moved this week: {collection_date.strftime('%A')} instead of Tuesday."
+    # If the council shows a different day for the next collection
+    if next_date and next_date.date() != scheduled_tuesday.date():
+        holiday_change = True
+        holiday_week_date = tz.localize(next_date)
+        holiday_msg = f"Collection moved this week: {holiday_week_date.strftime('%A')} instead of Tuesday."
 
-    bin_type = bin_type_for_week(collection_date)
-    reminder_day = collection_date - timedelta(days=1)
-
+    # Build rolling reminders for the next N weeks
     cal = f"""BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//NM Bin Buddy//EN
@@ -127,11 +122,22 @@ X-WR-CALNAME:{CAL_NAME}
 CALSCALE:GREGORIAN
 """
 
-    summary = f"Reminder: put out your {bin_type} bin – and give your neighbour a wave if theirs is still in!"
-    cal += make_event(reminder_day, summary, f"nm-reminder-{reminder_day.strftime('%Y%m%d')}")
+    for i in range(WEEKS_AHEAD):
+        collection_date = scheduled_tuesday + timedelta(days=7 * i)
 
-    if holiday_change:
-        cal += make_event(reminder_day, holiday_msg, f"nm-holiday-{reminder_day.strftime('%Y%m%d')}")
+        # If the holiday shift is this week, use the shifted date
+        if holiday_change and holiday_week_date and week_tuesday(collection_date).date() == week_tuesday(holiday_week_date).date():
+            collection_date = holiday_week_date
+
+        bin_type = bin_type_for_week(collection_date)
+        reminder_day = collection_date - timedelta(days=1)
+
+        summary = f"Reminder: put out your {bin_type} bin – and give your neighbour a wave if theirs is still in!"
+        cal += make_event(reminder_day, summary, f"nm-reminder-{reminder_day.strftime('%Y%m%d')}")
+
+        # Add holiday alert only once, on the shifted week
+        if holiday_change and holiday_week_date and reminder_day.date() == (holiday_week_date - timedelta(days=1)).date():
+            cal += make_event(reminder_day, holiday_msg, f"nm-holiday-{reminder_day.strftime('%Y%m%d')}")
 
     cal += "END:VCALENDAR"
     return cal
