@@ -108,17 +108,21 @@ def generate_calendar():
     holiday_change = False
     holiday_msg = ""
     holiday_week_date = None
-# TEST MODE: force a one‑week shift to Wednesday
+
+    # TEST MODE: force a one‑week shift to Wednesday
     if TEST_MODE:
         holiday_change = True
         holiday_week_date = scheduled_tuesday + timedelta(days=1)
         holiday_msg = "Collection moved this week: Wednesday instead of Tuesday."
-    
+
     # If the council shows a different day for the next collection
     if next_date and next_date.date() != scheduled_tuesday.date():
         holiday_change = True
         holiday_week_date = tz.localize(next_date)
         holiday_msg = f"Collection moved this week: {holiday_week_date.strftime('%A')} instead of Tuesday."
+
+    # Monday reminder day (day before normal Tuesday)
+    holiday_notice_day = scheduled_tuesday - timedelta(days=1)
 
     # Build rolling reminders for the next N weeks
     cal = f"""BEGIN:VCALENDAR
@@ -141,9 +145,9 @@ CALSCALE:GREGORIAN
         summary = f"Reminder: put out your {bin_type} bin – and give your neighbour a wave if theirs is still in!"
         cal += make_event(reminder_day, summary, f"nm-reminder-{reminder_day.strftime('%Y%m%d')}")
 
-        # Add holiday alert only once, on the shifted week
-        if holiday_change and holiday_week_date and reminder_day.date() == (holiday_week_date - timedelta(days=1)).date():
-            cal += make_event(reminder_day, holiday_msg, f"nm-holiday-{reminder_day.strftime('%Y%m%d')}")
+        # Holiday alert should always be Monday 4:30pm
+        if holiday_change and holiday_week_date and week_tuesday(collection_date).date() == week_tuesday(holiday_week_date).date():
+            cal += make_event(holiday_notice_day, holiday_msg, f"nm-holiday-{holiday_notice_day.strftime('%Y%m%d')}")
 
     cal += "END:VCALENDAR"
     return cal
