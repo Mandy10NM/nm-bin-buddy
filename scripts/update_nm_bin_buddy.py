@@ -13,7 +13,7 @@ REFERENCE_TUESDAY = tz.localize(datetime(2026, 3, 10))  # Tue 10 March 2026 = Bl
 COUNCIL_URL = "https://my.guildford.gov.uk/customers/s/view-bin-collections"
 
 WEEKS_AHEAD = 12  # number of future weeks to include in the calendar
-TEST_MODE = True  # set to False after test
+TEST_MODE = False  # test off
 
 
 def fetch_page_text():
