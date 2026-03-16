@@ -4,7 +4,7 @@ import pytz
 from playwright.sync_api import sync_playwright
 
 TIMEZONE = "Europe/London"
-REMINDER_TIME = "T163000"
+REMINDER_TIME = "T183000"
 CAL_NAME = "NM Bin Buddy"
 
 tz = pytz.timezone(TIMEZONE)
